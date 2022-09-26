@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Text,
   View,
+  FlatList,
 } from 'react-native';
 import React, {useState} from 'react';
 import {useMachine} from '@xstate/react';
@@ -13,33 +14,47 @@ import formMachine from '../../xstate/machine';
 
 import {images} from '../../utils/images';
 import colors from '../../utils/colors';
+import RepoCard from '../../component/RepoCard';
 
-const FormView = ({redirectPage}) => {
+const FormView = () => {
   const [text, setText] = useState('');
   const [state, send] = useMachine(formMachine);
 
-  const {username} = state.context;
+  const {username, user} = state.context;
 
-  console.log(username);
   const handleUsername = () => {
     send('NAME_INPUT', {text});
-    // redirectPage();
+  };
+
+  console.log(user);
+
+  const renderRepo = user => {
+    return <RepoCard key={user.id} user={user} />;
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.welcomeContainer}>
-        <Text style={styles.welcomeText}> WELCOME </Text>
+        {/* <Image source={images.helloImage} style={styles.helloImage} /> */}
+        <Text style={styles.welcomeText}> Github Repositories </Text>
       </View>
-      <Image source={images.helloImage} style={styles.helloImage} />
-      <TextInput
-        style={styles.input}
-        onChangeText={input => setText(input)}
-        placeholder="Enter your name"
-      />
-      <TouchableOpacity style={styles.button} onPress={() => handleUsername()}>
-        <Text style={styles.buttonText}>LETS GO</Text>
-      </TouchableOpacity>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          onChangeText={input => setText(input)}
+          placeholder="Enter username and hit the button"
+        />
+        <TouchableOpacity style={styles.button} onPress={() => handleUsername()}>
+          <Text style={styles.buttonText}>GO</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.subtitleContainer} />
+
+      {/* <FlatList data={user} renderItem={renderRepo} keyExtractor={item => item.id} /> */}
+
+      {user?.map(user => (
+        <RepoCard key={user.id} user={user} />
+      ))}
     </SafeAreaView>
   );
 };
@@ -50,44 +65,54 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'flex-end',
   },
   helloImage: {
-    height: 230,
+    height: 70,
     resizeMode: 'contain',
-    marginVertical: 5,
+    width: 50,
+  },
+  welcomeText: {
+    color: colors.orange,
+    fontWeight: 'bold',
+    fontSize: 30,
   },
   input: {
     borderColor: colors.black,
     borderWidth: 2,
-    width: '80%',
+    width: '70%',
     paddingHorizontal: 15,
-
     height: 45,
     borderRadius: 20,
   },
   button: {
-    marginTop: 15,
-    marginBottom: 30,
-    width: '80%',
     backgroundColor: colors.orange,
     height: 45,
     borderRadius: 20,
     justifyContent: 'center',
-    alignItems: 'center',
+    marginHorizontal: 10,
+    paddingHorizontal: 15,
   },
   buttonText: {
     fontSize: 20,
     color: colors.white,
     fontWeight: 'bold',
-  },
-  welcomeContainer: {
-    marginVertical: 100,
     justifyContent: 'center',
   },
-  welcomeText: {
-    color: colors.orange,
-    fontWeight: 'bold',
-    fontSize: 50,
+  welcomeContainer: {
+    marginVertical: 20,
+    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  inputContainer: {
+    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  subtitleContainer: {
+    width: '90%',
+    marginTop: 20,
+    borderEndColor: colors.gray.borderGray,
+    borderBottomWidth: 2,
   },
 });
